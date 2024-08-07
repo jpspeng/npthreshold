@@ -26,7 +26,7 @@ learner.event_type <-  Lrnr_glm$new()
 thresholdSurv <- function(data,
                           covariates,
                           failure_time, # T
-                          event_type, #  J (binary)
+                          event_type, #  J (binary) J = 0 (censoring), J =1 , J=2, would be competing events
                           marker,
                           weights,
                           Trt = NULL,
