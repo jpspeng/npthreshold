@@ -17,16 +17,37 @@ stack.failure <-  Lrnr_hal9001$new(max_degree = 2, num_knots = 20, smoothness_or
 stack.censoring <- stack.failure
 
 
+learner.treatment <-  Lrnr_glm$new()
+learner.censoring_time <-  Lrnr_glm$new()
+learner.failure_time <-  Lrnr_glm$new()
+learner.event_type <-  Lrnr_glm$new()
 
 
+thresholdSurv <- function(data,
+                          covariates,
+                          failure_time, # T
+                          event_type, #  J (binary)
+                          marker,
+                          weights,
+                          Trt = NULL,
+                          threshold_list,
+                          t_reference,
+                          nbins_time = 20,
+                          nbins_threshold = 20,
+                          learner.treatment,
+                          learner.event_type,
+                          learner.failure_time,
+                          learner.censoring_time
+) {
+
+
+}
 
 run_competing_risk_analysis = function(data,
                                        covariates,
-                                       failure_time,
-                                       event_type,
+                                       failure_time, # T
+                                       event_type, #  J (binary)
                                        marker,
-                                       variant_type,
-                                       variant_names,
                                        weights,
                                        Trt,
                                        TwophasesampIndD29,
@@ -39,30 +60,17 @@ run_competing_risk_analysis = function(data,
 
 
 
-  for(variant in variant_names) {
-    print(variant)
-    ########################
-    #### Make variant-specific time-to-event variables for competing risk analysis
-    ########################
 
-    # Depends on the name of event indicator variable, the variable that labels the variants, and the actual variant of interest.
-    event_type_key <- paste0(event_type, "_", variant_type, "_", variant )
-    value <- data[[event_type]]
-    value[is.na(value)] <- -1
-    value[!is.na(value) & value==1] <- ifelse(data[[variant_type]][!is.na(value) & value==1] == variant, 1, 2)
-    # Any remaining NAS are assigned a competing risk
-    value[value == -1] <- NA
-    value[is.na(value)] <- 2
-    data[, (event_type_key) := value]
 
     ########################
     #### Run competing risk analysis
     ########################
 
     # Reference time for CR
+    # this should be argument
     tf <- tf_by_variant[paste0(variant)]
     # Variant/event type for CR
-    event_type_target <- event_type_key
+    event_type_target <- event_type
 
 
     # make datasets of placebo and treated analysis
@@ -81,29 +89,7 @@ run_competing_risk_analysis = function(data,
       print(table(is.na(data_treated[[marker]])))
       stop("NAs in marker for threshold CR")
     }
-    est_tmp <- NULL
-    try({#run placebo analysis
-    data_placebo <- as.data.table(na.omit(data_placebo))
-    fit <- cmprsk::cuminc(data_placebo[[failure_time]], data_placebo[[event_type_target]])
-    fit <- cmprsk::timepoints(fit, as.numeric(tf))
-    # get estimate and se for reference time
-    est_tmp <- fit$est[1,1]
-    se_placebo <- sqrt(fit$var[1,1])})
 
-    # USe discretized time for better comparison.
-
-    # tf <- as.numeric(tf)
-    # data_placebo_discrete <- as.data.table(data_placebo)
-    # time_grid <- unique(quantile(data_treated[[failure_time]], seq(0,1, length = nbins_time+1), type = 1))
-    # time_grid <- sort(union(time_grid, tf))
-    # failure_time_discrete <- findInterval(data_placebo_discrete[[failure_time]], time_grid, all.inside = TRUE)
-    # tf_discrete <- findInterval(tf, time_grid, all.inside = FALSE)
-    # data_placebo_discrete[[failure_time]] <-failure_time_discrete
-    # fit_discrete <- cmprsk::cuminc(data_placebo_discrete[[failure_time]], data_placebo_discrete[[event_type_target]])
-    # fit_discrete <- cmprsk::timepoints(fit_discrete, as.numeric(tf_discrete))
-    # #print(c(fit_discrete$est[1,1], est_placebo))
-    # est_placebo <- fit_discrete$est[1,1]
-    # se_placebo <- sqrt(fit_discrete$var[1,1])
 
     data_placebo[[weights]] <- 1
     print(colnames(data_placebo))
@@ -177,15 +163,15 @@ run_competing_risk_analysis = function(data,
 
 
     # delta method log(est) ~ sd(IF)/est
-    output_treated$estimates_placebo <- est_placebo
-    output_treated$se_placebo <- se_placebo
-    output_treated$estimates_log_RR <-  log(output_treated$estimates) - log(est_placebo)
-    output_treated$se_log_RR <- sqrt((output_treated$se/output_treated$estimates)^2 + (se_placebo/est_placebo)^2)
+    #output_treated$estimates_placebo <- est_placebo
+    #output_treated$se_placebo <- se_placebo
+    #output_treated$estimates_log_RR <-  log(output_treated$estimates) - log(est_placebo)
+    #output_treated$se_log_RR <- sqrt((output_treated$se/output_treated$estimates)^2 + (se_placebo/est_placebo)^2)
 
-    saveRDS(output_treated, file = here::here(paste0("output/vaccine_", marker, "_", failure_time, "_", event_type_target, ".RDS")))
-    fwrite(data_treated,  here::here(paste0("data_clean/data_treated_", marker, "_", failure_time, "_", event_type_target, ".csv")))
-    fwrite(data_placebo,   here::here(paste0("data_clean/data_placebo_", marker, "_", failure_time, "_", event_type_target, ".csv")))
-  }
+    #saveRDS(output_treated, file = here::here(paste0("output/vaccine_", marker, "_", failure_time, "_", event_type_target, ".RDS")))
+    #fwrite(data_treated,  here::here(paste0("data_clean/data_treated_", marker, "_", failure_time, "_", event_type_target, ".csv")))
+    #fwrite(data_placebo,   here::here(paste0("data_clean/data_placebo_", marker, "_", failure_time, "_", event_type_target, ".csv")))
+
 }
 
 
