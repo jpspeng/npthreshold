@@ -1,4 +1,4 @@
-#' internal use
+# internal use
 long_hazard_to_survival_mats <- function(hazard.hats, time_grid, left_cont = FALSE, as_vector = TRUE) {
   apply(hazard.hats, 2, function(hazard.hat){
     # convert hazard to (n by t) matrix with columns corresponding to times.
@@ -15,7 +15,7 @@ long_hazard_to_survival_mats <- function(hazard.hats, time_grid, left_cont = FAL
   }, simplify = FALSE)
 }
 
-#' internal use
+# internal use
 transform_data_to_long = function(data, node_list) {
   as.data.table(data)
   failure_time_name <- node_list$failure_time

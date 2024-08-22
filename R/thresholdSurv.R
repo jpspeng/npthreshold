@@ -1,18 +1,20 @@
 #' Non-parametric estimation of the covariate-adjusted threshold-response function
 #'
-#' https://arxiv.org/pdf/2107.11459
+#' This method estimates \eqn{E[E[Y|A \ge v, W]]} for a range of thresholds \eqn{v}, where \eqn{Y}
+#' is a binary outcome of interest, \eqn{A} is a continuous biomarker of interest, and
+#' \eqn{W} are baseline variables. To account for missingness in the marker \eqn{A}, the user can
+#' provide inverse probability observation weights in the function call.
 #'
-#' @param data Dataframe
-#' @param covariates Vector of strings, representing column names for the adjustment covariates
-#' @param failure_time A string for the column name of the failure time variable
-#' @param event_type A string for the column name fo the event type variable
-#' @param marker A string for the column name of the marker variable
-#' @param weights A string for the column name of the weights used in estimation
-#' @param threshold_list A vector of numeric variables of thresholds to estimate.
-#' If NULL, then estimate on the entire dataset
-#' @param tf A numeric for reference time point
-#' @param nbins_time A numeric for time bins
-#' @param nbins_threshold Threshold of time bins ?? (NOT USED HERE)
+#' @param data A \code{data.frame} containing the dataset to be analyzed.
+#' @param covariates A \code{character} vector specifying the names of columns to be used as adjustment covariates.
+#' @param failure_time A \code{character} string indicating the name of the column representing the failure time variable.
+#' @param event_type A \code{character} string specifying the name of the column representing the event type variable.
+#' @param marker A \code{character} string for the name of the column representing the marker variable.
+#' @param weights A \code{character} string specifying the name of the column containing the weights for estimation.
+#' @param threshold_list A \code{numeric} vector of threshold values for estimation. If \code{NULL}, estimation is performed on the entire dataset.
+#' @param tf A \code{numeric} value indicating the reference time point for the analysis.
+#' @param nbins_time A \code{numeric} value specifying the number of time bins to be used.
+#' @param nbins_threshold (NOT USED HERE - WHAT IS THIS FOR?)
 #' This learner is used as \code{binomial_learner} for \code{\link[sl3]{Lrnr_pooled_hazards}}.
 #' Default uses auto ensemble learning by calling `causalutils::get_autoML()`.
 #' @param learner.censoring_time A \code{binomial} \code{\link[sl3]{Lrnr_base}} learner object used for fitting conditional hazard model for censoring.
@@ -26,9 +28,16 @@
 #' Default uses auto ensemble learning by calling `causalutils::get_autoML()`.
 #' @param verbose A logical value indicating whether to display progress and diagnostic messages during the computation. Default is FALSE.
 #'
-#' @return A dataframe with the estimates, estimates assuming monotonicity,
-#' standard errors, confidence intervals, number above the threshold, number of events
-#' above the threshold for each threshold in threshold_list.
+#' @return A data.frame containing the following columns for each threshold in `threshold_list`:
+#' - `estimate`: The estimated value.
+#' - `se`: The standard error of the estimate.
+#' - `ci_lo`: The lower bound of the confidence interval.
+#' - `ci_hi`: The upper bound of the confidence interval.
+#' - `estimate_monotone`: The monotone-adjusted estimate.
+#' - `ci_lo_monotone`: The lower bound of the monotone-adjusted confidence interval.
+#' - `ci_hi_monotone`: The upper bound of the monotone-adjusted confidence interval.
+#' - `n_in_bin`: The number of observations above the threshold.
+#' - `n_events_in_bin`: The number of events above the threshold.
 #'
 #' @import sl3 data.table origami
 #' @examples
@@ -38,8 +47,8 @@ thresholdSurv <- function(data,
                           failure_time,
                           event_type,
                           marker,
-                          weights,
                           tf,
+                          weights = NULL,
                           threshold_list = NULL,
                           nbins_time = 20,
                           nbins_threshold = 20,
@@ -52,6 +61,12 @@ thresholdSurv <- function(data,
 
   data <- data.table::as.data.table(data)
   tf <- as.numeric(tf)
+
+  # set all weights to equal 1 if weights are NULL
+  if (is.null(weights)){
+    data$weights <- 1
+    weights <- "weights"
+  }
 
   # subset to relevant variables
   data_select <- data[, c(covariates, failure_time,
@@ -116,7 +131,12 @@ thresholdSurv <- function(data,
       )
     })
 
-    survout$threshold <- threshold
+    if (is.null(threshold_list)){
+      survout$threshold <- NA
+    }
+    else{
+      survout$threshold <- threshold
+    }
     out_list[[paste0(threshold)]] <- survout
   }
 
@@ -151,7 +171,10 @@ thresholdSurv <- function(data,
   res$ci_lo <- unlist(res$CI)[ c(TRUE,FALSE) ]
   res$ci_hi <- unlist(res$CI)[ c(FALSE,TRUE) ]
 
-  res[,c("threshold", "n_in_bin", "n_events_in_bin", "estimate",
-            "estimate_monotone", "se", "ci_lo", "ci_hi")]
+  res$ci_lo_monotone <- res$estimate_monotone - (1.96 * res$se)
+  res$ci_hi_monotone <- res$estimate_monotone + (1.96 * res$se)
+
+  res[,c("threshold", "n_in_bin", "n_events_in_bin", "estimate", "se",
+         "ci_lo", "ci_hi", "estimate_monotone", "ci_lo_monotone", "ci_hi_monotone")]
 }
 

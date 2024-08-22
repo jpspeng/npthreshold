@@ -10,8 +10,8 @@ thresholdSurv(
   failure_time,
   event_type,
   marker,
-  weights,
   tf,
+  weights = NULL,
   threshold_list = NULL,
   nbins_time = 20,
   nbins_threshold = 20,
@@ -23,26 +23,25 @@ thresholdSurv(
 )
 }
 \arguments{
-\item{data}{Dataframe}
+\item{data}{A \code{data.frame} containing the dataset to be analyzed.}
 
-\item{covariates}{Vector of strings, representing column names for the adjustment covariates}
+\item{covariates}{A \code{character} vector specifying the names of columns to be used as adjustment covariates.}
 
-\item{failure_time}{A string for the column name of the failure time variable}
+\item{failure_time}{A \code{character} string indicating the name of the column representing the failure time variable.}
 
-\item{event_type}{A string for the column name fo the event type variable}
+\item{event_type}{A \code{character} string specifying the name of the column representing the event type variable.}
 
-\item{marker}{A string for the column name of the marker variable}
+\item{marker}{A \code{character} string for the name of the column representing the marker variable.}
 
-\item{weights}{A string for the column name of the weights used in estimation}
+\item{tf}{A \code{numeric} value indicating the reference time point for the analysis.}
 
-\item{tf}{A numeric for reference time point}
+\item{weights}{A \code{character} string specifying the name of the column containing the weights for estimation.}
 
-\item{threshold_list}{A vector of numeric variables of thresholds to estimate.
-If NULL, then estimate on the entire dataset}
+\item{threshold_list}{A \code{numeric} vector of threshold values for estimation. If \code{NULL}, estimation is performed on the entire dataset.}
 
-\item{nbins_time}{A numeric for time bins}
+\item{nbins_time}{A \code{numeric} value specifying the number of time bins to be used.}
 
-\item{nbins_threshold}{Threshold of time bins ?? (NOT USED HERE)
+\item{nbins_threshold}{(NOT USED HERE - WHAT IS THIS FOR?)
 This learner is used as \code{binomial_learner} for \code{\link[sl3]{Lrnr_pooled_hazards}}.
 Default uses auto ensemble learning by calling `causalutils::get_autoML()`.}
 
@@ -61,10 +60,20 @@ This learner is used as \code{binomial_learner} for \code{\link[sl3]{Lrnr_pooled
 Default uses auto ensemble learning by calling `causalutils::get_autoML()`.}
 }
 \value{
-A dataframe with the estimates, estimates assuming monotonicity,
-standard errors, confidence intervals, number above the threshold, number of events
-above the threshold for each threshold in threshold_list.
+A data.frame containing the following columns for each threshold in `threshold_list`:
+- `estimate`: The estimated value.
+- `se`: The standard error of the estimate.
+- `ci_lo`: The lower bound of the confidence interval.
+- `ci_hi`: The upper bound of the confidence interval.
+- `estimate_monotone`: The monotone-adjusted estimate.
+- `ci_lo_monotone`: The lower bound of the monotone-adjusted confidence interval.
+- `ci_hi_monotone`: The upper bound of the monotone-adjusted confidence interval.
+- `n_in_bin`: The number of observations above the threshold.
+- `n_events_in_bin`: The number of events above the threshold.
 }
 \description{
-https://arxiv.org/pdf/2107.11459
+This method estimates \eqn{E[E[Y|A \ge v, W]]} for a range of thresholds \eqn{v}, where \eqn{Y}
+is a binary outcome of interest, \eqn{A} is a continuous biomarker of interest, and
+\eqn{W} are baseline variables. To account for missingness in the marker \eqn{A}, the user can
+provide inverse probability observation weights in the function call.
 }

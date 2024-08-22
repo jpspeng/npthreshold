@@ -1,5 +1,5 @@
 
-#' internal use
+# internal use
 .target_event_type_distr <- function(target_failure_time, target_treatment, target_event_type, data_long, treatment_levels, event_type_levels, treatment.hat, censor.hazard.hats, total.hazard.hats, event_type.distr.hats, weights) {
   n <- sum(weights)
   time_grid <- 1:max(data_long$failure_time)

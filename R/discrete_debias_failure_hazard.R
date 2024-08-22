@@ -1,5 +1,5 @@
 
-#' internal use
+# internal use
 .target_failure_hazard <- function(max_eps = 0.05, target_failure_time, target_treatment, target_event_type, data_long, treatment_levels, event_type_levels, treatment.hat, censor.hazard.hats, total.hazard.hats, event_type.distr.hats, weights, tol,
                                    verbose = F) {
   if(any(is.na(unlist(treatment.hat)))){

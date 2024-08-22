@@ -2,18 +2,18 @@
 % Please edit documentation in R/graphthresh.R
 \name{graphthresh}
 \alias{graphthresh}
-\title{Function to plot estimates and confidence intervals across different thresholds}
+\title{Plot threshold-response estimates}
 \usage{
 graphthresh(res, monotone = F)
 }
 \arguments{
-\item{res}{Dataframe obtained from running thresholdSurv() function}
+\item{res}{A \code{data.frame} obtained from the \code{thresholdSurv()} function, containing the estimates and related statistics.}
 
-\item{monotone}{TRUE to show the results with the monotonicity assumption}
+\item{monotone}{A \code{logical} value. Set to \code{TRUE} to display results under the monotonicity assumption.}
 }
 \value{
-A ggplot2 graph
+A \code{ggplot2} object displaying the estimates and confidence intervals for \eqn{E[E[Y|A \ge v, W]]} across the specified thresholds.
 }
 \description{
-Function to plot estimates and confidence intervals across different thresholds
+This function creates a plot of estimates and confidence intervals for \eqn{E[E[Y|A \ge v, W]]} across various thresholds.
 }

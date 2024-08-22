@@ -1,9 +1,11 @@
-#' Function to plot estimates and confidence intervals across different thresholds
+#' Plot threshold-response estimates
 #'
-#' @param res Dataframe obtained from running thresholdSurv() function
-#' @param monotone TRUE to show the results with the monotonicity assumption
+#' This function creates a plot of estimates and confidence intervals for \eqn{E[E[Y|A \ge v, W]]} across various thresholds.
 #'
-#' @return A ggplot2 graph
+#' @param res A \code{data.frame} obtained from the \code{thresholdSurv()} function, containing the estimates and related statistics.
+#' @param monotone A \code{logical} value. Set to \code{TRUE} to display results under the monotonicity assumption.
+#'
+#' @return A \code{ggplot2} object displaying the estimates and confidence intervals for \eqn{E[E[Y|A \ge v, W]]} across the specified thresholds.
 #' @export
 graphthresh <- function(res,
                         monotone = F){
