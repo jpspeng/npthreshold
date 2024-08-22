@@ -12,6 +12,7 @@ devtools::install_github("jpspeng/npthreshold")
 ```{r}
 library(npthreshold)
 
+# estimates the threshold-response function across specified thresholds
 res <- thresholdSurv(data = thresh_sample,
                      covariates = c("W1", "W2"), 
                      failure_time = "time",
@@ -26,5 +27,6 @@ res <- thresholdSurv(data = thresh_sample,
                      learner.censoring_time = Lrnr_glm$new(), 
                      verbose = F)
 
+# creates of graph of this estimated function with confidence intervals
 graphthresh(res)
 ```
