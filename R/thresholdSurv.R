@@ -30,7 +30,9 @@
 #' standard errors, confidence intervals, number above the threshold, number of events
 #' above the threshold for each threshold in threshold_list.
 #'
+#' @import sl3 data.table origami
 #' @examples
+#' @export
 thresholdSurv <- function(data,
                           covariates,
                           failure_time,
@@ -48,7 +50,7 @@ thresholdSurv <- function(data,
                           learner.censoring_time = NULL
 ) {
 
-  data <- as.data.table(data)
+  data <- data.table::as.data.table(data)
   tf <- as.numeric(tf)
 
   # subset to relevant variables
@@ -56,7 +58,7 @@ thresholdSurv <- function(data,
                           event_type, marker, weights), with = FALSE]
 
   tmp_marker <- ifelse(data_select[[weights]] == 0, 0, data_select[[marker]])
-  set(data_select, , marker, tmp_marker)
+  data.table::set(data_select, , marker, tmp_marker)
 
   if (any(is.na(data_select[[marker]]))) {
     stop("NAs in marker for threshold CR")
@@ -118,12 +120,12 @@ thresholdSurv <- function(data,
     out_list[[paste0(threshold)]] <- survout
   }
 
-  output <- rbindlist(out_list)
+  res <- rbindlist(out_list)
 
   # make results table
-  output$estimate <- unlist(output$estimates )
-  output$se <- unlist(output$se )
-  output$times <- tf
+  res$estimate <- unlist(res$estimates )
+  res$se <- unlist(res$se )
+  res$times <- tf
 
   n_in_bin <- sapply(threshold_list, function(thresh) {
     sum( data_select[[marker]] >= thresh)
@@ -133,8 +135,8 @@ thresholdSurv <- function(data,
     sum(data_select[data_select[[marker]] >= thresh , event_type, with = FALSE] == 1)
   })
 
-  output$n_in_bin <- n_in_bin
-  output$n_events_in_bin <- n_events_in_bin
+  res$n_in_bin <- n_in_bin
+  res$n_events_in_bin <- n_events_in_bin
 
   n_event_cutoff <- 10
 
@@ -142,14 +144,14 @@ thresholdSurv <- function(data,
   weights_for_iso[n_events_in_bin < n_event_cutoff] <- 0.01
   weights_for_iso <- weights_for_iso / sum(weights_for_iso)
 
-  output$estimate_monotone <- -isotone::gpava(output$threshold,
-                                               -output$estimate,
+  res$estimate_monotone <- -isotone::gpava(res$threshold,
+                                               -res$estimate,
                                                weights = weights_for_iso)$x
 
-  output$ci_lo <- unlist(output$CI)[ c(TRUE,FALSE) ]
-  output$ci_hi <- unlist(output$CI)[ c(FALSE,TRUE) ]
+  res$ci_lo <- unlist(res$CI)[ c(TRUE,FALSE) ]
+  res$ci_hi <- unlist(res$CI)[ c(FALSE,TRUE) ]
 
-  output[,c("threshold", "n_in_bin", "n_events_in_bin", "estimate",
+  res[,c("threshold", "n_in_bin", "n_events_in_bin", "estimate",
             "estimate_monotone", "se", "ci_lo", "ci_hi")]
 }
 
