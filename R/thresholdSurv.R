@@ -56,7 +56,9 @@ thresholdSurv <- function(data,
                           learner.treatment = NULL,
                           learner.event_type = NULL,
                           learner.failure_time = NULL,
-                          learner.censoring_time = NULL
+                          learner.censoring_time = NULL,
+                          placebo_incidence = NULL,
+                          placebo_se = NULL
 ) {
 
   data <- data.table::as.data.table(data)
@@ -174,7 +176,39 @@ thresholdSurv <- function(data,
   res$ci_lo_monotone <- res$estimate_monotone - (1.96 * res$se)
   res$ci_hi_monotone <- res$estimate_monotone + (1.96 * res$se)
 
-  res[,c("threshold", "n_in_bin", "n_events_in_bin", "estimate", "se",
-         "ci_lo", "ci_hi", "estimate_monotone", "ci_lo_monotone", "ci_hi_monotone")]
+  res <- res[,c("threshold", "n_in_bin", "n_events_in_bin", "estimate", "se",
+                "ci_lo", "ci_hi", "estimate_monotone", "ci_lo_monotone", "ci_hi_monotone")]
+
+  if (!is.null(placebo_incidence) & !is.null(placebo_se)){
+    res <- res %>%
+      mutate(ve_monotone = 1 - (estimate_monotone / placebo_incidence))
+
+    res$ve_se <- apply(res, 1, calc_delta_method,
+                       placebo_incidence = placebo_incidence,
+                       placebo_se = placebo_se)
+
+    res <- res %>%
+      mutate(ve_monotone_ci_lo = ve_monotone - (1.96 * ve_se),
+             ve_monotone_ci_hi = ve_monotone + (1.96 * ve_se))
+  }
+
+  res
+
 }
+
+calc_delta_method <- function(row, placebo_incidence, placebo_se) {
+  # Extract values from the row
+  estimate_monotone <- row['estimate_monotone']
+  estimate_se  <- row['se']
+
+  # Variance-covariance matrix (assuming no covariance)
+  cov_matrix <- matrix(c(estimate_se^2, 0, 0, placebo_se^2), nrow = 2)
+
+  # Calculate the standard error using the delta method
+  se_ratio <- deltamethod(~ x1 / x2, mean = c(estimate_monotone, placebo_incidence),
+                          cov = cov_matrix)
+
+  return(se_ratio)
+}
+
 
