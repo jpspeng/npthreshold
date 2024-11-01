@@ -69,7 +69,6 @@ graphthresh <- function(res,
     theme(plot.title = element_text(hjust = 0.5))
 
   if (plot_density){
-    scale_coef <- max(ggthresh$data$ci_hi, na.rm = T)
 
     RCDF <- function(a) {
       sum(data[[weights]] * (data[[marker]] >= a)) /
