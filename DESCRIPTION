@@ -13,5 +13,5 @@ Imports:
     tmle3,
     sl3,
     data.table,
-    R6
+    R6,
     ggplot2
