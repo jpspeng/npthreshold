@@ -14,19 +14,15 @@
 #' @param threshold_list A \code{numeric} vector of threshold values for estimation. If \code{NULL}, estimation is performed on the entire dataset.
 #' @param tf A \code{numeric} value indicating the reference time point for the analysis.
 #' @param nbins_time A \code{numeric} value specifying the number of time bins to be used.
-#' @param nbins_threshold (NOT USED HERE - WHAT IS THIS FOR?)
-#' This learner is used as \code{binomial_learner} for \code{\link[sl3]{Lrnr_pooled_hazards}}.
-#' Default uses auto ensemble learning by calling `causalutils::get_autoML()`.
 #' @param learner.censoring_time A \code{binomial} \code{\link[sl3]{Lrnr_base}} learner object used for fitting conditional hazard model for censoring.
-#' This learner is used as \code{binomial_learner} for \code{\link[sl3]{Lrnr_pooled_hazards}}.
-#' Default uses auto ensemble learning by calling `causalutils::get_autoML()`.
 #' @param learner.event_type A \code{binomial} \code{\link[sl3][Lrnr_base]} learner object used for fitting the conditional probability distribution for failure time of the failure event type.
-#' For nonbinary categorical event type, this is used as \code{binomial_learner} in \code{\link[sl3]{Lrnr_independent_binomial}}.
-#' Default uses auto ensemble learning by calling `causalutils::get_autoML()`.
 #' @param learner.treatment A \code{binomial} \code{\link[sl3]{Lrnr_base}} learner object used for fitting the propensity score model for the treatment mechanism.
-#' For nonbinary categorical treatment, this is used as \code{binomial_learner} in \code{\link[sl3]{Lrnr_independent_binomial}}.
-#' Default uses auto ensemble learning by calling `causalutils::get_autoML()`.
+#' @param learner.failure_time  \code{binomial} \code{\link[sl3]{Lrnr_base}} learner object used for fitting the conditional hazard model for failure.
 #' @param verbose A logical value indicating whether to display progress and diagnostic messages during the computation. Default is FALSE.
+#' @param placebo_risk Placebo risk (to calculate VE columns). If NULL (default), will not
+#' include VE results.
+#' @param placebo_se Placebo risk standard error (to calculate VE standard errors)
+#' If NULL (default), will not include VE results.
 #'
 #' @return A data.frame containing the following columns for each threshold in `threshold_list`:
 #' - `estimate`: The estimated value.
@@ -51,13 +47,13 @@ thresholdSurv <- function(data,
                           weights = NULL,
                           threshold_list = NULL,
                           nbins_time = 20,
-                          nbins_threshold = 20,
+                          # nbins_threshold = 20,
                           verbose = FALSE,
                           learner.treatment = NULL,
                           learner.event_type = NULL,
                           learner.failure_time = NULL,
                           learner.censoring_time = NULL,
-                          placebo_incidence = NULL,
+                          placebo_risk = NULL,
                           placebo_se = NULL
 ) {
 
@@ -179,12 +175,12 @@ thresholdSurv <- function(data,
   res <- res[,c("threshold", "n_in_bin", "n_events_in_bin", "estimate", "se",
                 "ci_lo", "ci_hi", "estimate_monotone", "ci_lo_monotone", "ci_hi_monotone")]
 
-  if (!is.null(placebo_incidence) & !is.null(placebo_se)){
+  if (!is.null(placebo_risk) & !is.null(placebo_se)){
     res <- res %>%
-      mutate(ve_monotone = 1 - (estimate_monotone / placebo_incidence))
+      mutate(ve_monotone = 1 - (estimate_monotone / placebo_risk))
 
     res$ve_se <- apply(res, 1, calc_delta_method,
-                       placebo_incidence = placebo_incidence,
+                       placebo_risk = placebo_risk,
                        placebo_se = placebo_se)
 
     res <- res %>%
@@ -196,7 +192,7 @@ thresholdSurv <- function(data,
 
 }
 
-calc_delta_method <- function(row, placebo_incidence, placebo_se) {
+calc_delta_method <- function(row, placebo_risk, placebo_se) {
   # Extract values from the row
   estimate_monotone <- row['estimate_monotone']
   estimate_se  <- row['se']
@@ -205,7 +201,7 @@ calc_delta_method <- function(row, placebo_incidence, placebo_se) {
   cov_matrix <- matrix(c(estimate_se^2, 0, 0, placebo_se^2), nrow = 2)
 
   # Calculate the standard error using the delta method
-  se_ratio <- deltamethod(~ x1 / x2, mean = c(estimate_monotone, placebo_incidence),
+  se_ratio <- deltamethod(~ x1 / x2, mean = c(estimate_monotone, placebo_risk),
                           cov = cov_matrix)
 
   return(se_ratio)

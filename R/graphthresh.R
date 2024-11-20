@@ -4,10 +4,20 @@
 #' \eqn{E[E[Y|A \ge v, W]]} across various thresholds.
 #'
 #' @param res A \code{data.frame} obtained from the \code{thresholdSurv()}
-#' function, containing the estimates and related statistics.
-#' @param monotone A \code{logical} value. Set to \code{TRUE} to display results
-#' under the monotonicity assumption.
-#'
+#' @param type Either "raw", "monotone", or "ve"
+#' @param ylabel Label for x-axis of graph
+#' @param xlabel Label for y-axis of graph
+#' @param plot_density T to include cumulative density function on graph
+#' @param plot_endpoints T to include points for disease endpoints on graph
+#' @param data Original dataset (needed to graph cdf)
+#' @param weights String for weight variable (needed to graph cdf)
+#' @param marker String for marker variable (needed to graph cdf)
+#' @param annotate String for text to annotate in the corner of the graph
+#' @param event String for event variable (needed to graph individual disease
+#' endpoints)
+#' @param time_var String for time to event variable (needed to graph individual
+#' disease endpoints)
+#' @param tf Reference timepoint for the analysis
 #' @return A \code{ggplot2} object displaying the estimates and confidence
 #' intervals for \eqn{E[E[Y|A \ge v, W]]} across the specified thresholds.
 #' @export
@@ -15,12 +25,13 @@ graphthresh <- function(res,
                         type = "raw",
                         ylabel = "Estimate",
                         xlabel = "Thresholds",
-                        cutoffs = NA,
+                        # cutoffs = NA,
                         # exp10 = F,
                         # lod_limit = NA,
                         # lod_label = "LLOQ/2",
                         # include_lod = T,
                         plot_density = F,
+                        plot_endpoints = F,
                         data = NA,
                         weights = NA,
                         marker = NA,
@@ -28,6 +39,8 @@ graphthresh <- function(res,
                         event = NA,
                         time_var = NA,
                         tf = NA){
+
+  res <- data.frame(res)
 
   if (type == "monotone"){
     y_var <- "estimate_monotone"
@@ -75,20 +88,12 @@ graphthresh <- function(res,
         sum(data[[weights]]) * scale_coef
     }
 
-    data_event <- data %>%
-      filter(.data[[event]] == 1 & .data[[time_var]] <= tf)
-
-    data_event$y_inter <- approx(res$threshold, res[[y_var]],
-                                 xout = data_event[,marker],
-                                 yright = yright)$y
-
     RCDF <- Vectorize(RCDF)
 
     col <- c(col2rgb("olivedrab3")) # orange, darkgoldenrod2
     col <- rgb(col[1], col[2], col[3], alpha = 255 * 0.4, maxColorValue = 255)
 
     ggthresh <- ggthresh +
-      geom_point(aes_string(x = marker, y = "y_inter"), data = data_event, color = "blue") +
       stat_function(fun = RCDF, color = col,
                     geom = "area", fill = col, alpha = 0.2) +
       scale_y_continuous(
@@ -96,7 +101,18 @@ graphthresh <- function(res,
                             name = "Reverse CDF"), n.breaks = 10)  +
       theme(plot.title = element_text(hjust = 0.5),
             axis.text.x = element_text(angle = 0, hjust = 1),
-            axis.text.y = element_text(angle = 0, hjust = 1)) +
+            axis.text.y = element_text(angle = 0, hjust = 1))
+  }
+
+  if (plot_endpoints){
+    data_event <- data %>%
+      filter(.data[[event]] == 1 & .data[[time_var]] <= tf)
+
+    data_event$y_inter <- approx(res$threshold, res[[y_var]],
+                                 xout = data_event[,marker],
+                                 yright = yright)$y
+    ggthresh <- ggthresh +
+      geom_point(aes_string(x = marker, y = "y_inter"), data = data_event, color = "blue") +
       geom_vline(xintercept = max(data_event[,marker]),
                  linetype = "dotted",
                  color = "red")
