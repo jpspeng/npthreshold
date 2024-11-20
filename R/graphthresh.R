@@ -35,7 +35,7 @@ graphthresh <- function(res,
                         data = NA,
                         weights = NA,
                         marker = NA,
-                        annotate = "",
+                        annotate = NA,
                         event = NA,
                         time_var = NA,
                         tf = NA){
@@ -154,7 +154,7 @@ graphthresh <- function(res,
   #     )
   # }
 
-  if (!is.na(data)){
+  if (!is.na(annotate)){
     x_annotate_loc <- max(data[,marker]) * 0.85
 
     ggthresh <- ggthresh  +
