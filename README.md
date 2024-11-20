@@ -11,6 +11,7 @@ devtools::install_github("jpspeng/npthreshold")
 
 ```{r}
 library(npthreshold)
+library(sl3)
 
 # estimates the threshold-response function across specified thresholds
 res <- thresholdSurv(data = thresh_sample,
