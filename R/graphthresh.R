@@ -154,7 +154,7 @@ graphthresh <- function(res,
   #     )
   # }
 
-  if (!is.null(data)){
+  if (!is.na(data)){
     x_annotate_loc <- max(data[,marker]) * 0.85
 
     ggthresh <- ggthresh  +
