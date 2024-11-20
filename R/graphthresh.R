@@ -68,10 +68,10 @@ graphthresh <- function(res,
   #   implement cutoffs
   # }
 
-  ggthresh <- ggplot2::ggplot(res, ggplot2::aes(x = threshold, y = !!sym(y_var))) +
+  ggthresh <- ggplot2::ggplot(res, ggplot2::aes(x = threshold, y = !!rlang::sym(y_var))) +
     geom_point(size = 0.2) +
     geom_line() +
-    geom_ribbon(aes(ymin = !!sym(ci_lo_var), ymax = !!sym(ci_hi_var)), alpha = 0.3, color = NA) +
+    geom_ribbon(aes(ymin = !!rlang::sym(ci_lo_var), ymax = !!rlang::sym(ci_hi_var)), alpha = 0.3, color = NA) +
     labs(x = "Thresholds", y = "Estimates (CI)") +
     theme_minimal() +
     scale_y_continuous(n.breaks = 10) +
