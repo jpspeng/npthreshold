@@ -154,14 +154,17 @@ graphthresh <- function(res,
   #     )
   # }
 
-  x_annotate_loc <- max(data[,marker]) * 0.85
+  if (!is.null(data)){
+    x_annotate_loc <- max(data[,marker]) * 0.85
 
-  ggthresh  +
-    annotate("text",
-             x = x_annotate_loc,
-             y = max(res[,ci_hi_var]) * 0.95,
-             label = annotate)
+    ggthresh <- ggthresh  +
+      annotate("text",
+               x = x_annotate_loc,
+               y = max(res[,ci_hi_var]) * 0.95,
+               label = annotate)
+  }
 
+  ggthresh
 }
 
 
