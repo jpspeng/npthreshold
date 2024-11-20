@@ -64,9 +64,9 @@ graphthresh <- function(res,
     yright <- max(res[[y_var]])
   }
 
-  if (!is.na(cutoffs)){
-    # implement cutoffs
-  }
+  # if (!is.na(cutoffs)){
+  #   implement cutoffs
+  # }
 
   ggthresh <- ggplot2::ggplot(res, ggplot2::aes(x = threshold, y = !!sym(y_var))) +
     geom_point(size = 0.2) +
