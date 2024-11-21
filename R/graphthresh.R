@@ -26,7 +26,7 @@ graphthresh <- function(res,
                         ylabel = "Estimate",
                         xlabel = "Thresholds",
                         # cutoffs = NA,
-                        # exp10 = F,
+                        exp10 = F,
                         # lod_limit = NA,
                         # lod_label = "LLOQ/2",
                         # include_lod = T,
@@ -118,6 +118,18 @@ graphthresh <- function(res,
                  color = "red")
 
   }
+
+  if (exp10){
+    min_value <- min(res$threshold, na.rm = TRUE)
+    max_value <- max(res$threshold, na.rm = TRUE)
+    breaks <- ceiling(min_value):floor(max_value)
+
+    plt <- plt +
+      scale_x_continuous(
+        breaks = breaks,
+        labels = 10^breaks
+      )
+    }
 
   # if (exp10){
   #   min_value <- min(data[, marker], na.rm = TRUE)
