@@ -75,8 +75,6 @@ graphthresh <- function(res,
     labs(x = "Thresholds", y = "Estimates (CI)") +
     theme_minimal() +
     scale_y_continuous(n.breaks = 10) +
-    scale_x_continuous(
-      limits = c(min(res$threshold), max(res$threshold))) +
     xlab(xlabel) +
     ylab(ylabel)  +
     theme(plot.title = element_text(hjust = 0.5))
@@ -91,11 +89,10 @@ graphthresh <- function(res,
     RCDF <- Vectorize(RCDF)
 
     col <- c(col2rgb("olivedrab3")) # orange, darkgoldenrod2
-    col <- rgb(col[1], col[2], col[3], alpha = 255 * 0.4, maxColorValue = 255)
+    col <- rgb(col[1], col[2], col[3], alpha = 255, maxColorValue = 255)
 
     ggthresh <- ggthresh +
-      stat_function(fun = RCDF, color = col,
-                    geom = "area", fill = col, alpha = 0.2) +
+      stat_function(fun = RCDF, color = col, geom = "line") +
       scale_y_continuous(
         sec.axis = sec_axis(~ . / scale_coef,
                             name = "Reverse CDF"), n.breaks = 10)  +
@@ -124,7 +121,7 @@ graphthresh <- function(res,
     max_value <- max(res$threshold, na.rm = TRUE)
     breaks <- ceiling(min_value):floor(max_value)
 
-    plt <- plt +
+    ggthresh <- ggthresh +
       scale_x_continuous(
         breaks = breaks,
         labels = 10^breaks
@@ -167,7 +164,7 @@ graphthresh <- function(res,
   # }
 
   if (!is.na(annotate)){
-    x_annotate_loc <- max(data[,marker]) * 0.85
+    x_annotate_loc <- max(data[,marker]) * 0.8
 
     ggthresh <- ggthresh  +
       annotate("text",
