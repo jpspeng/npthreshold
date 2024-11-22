@@ -117,12 +117,14 @@ graphthresh <- function(res,
   }
 
   if (exp10){
-    min_value <- min(res$threshold, na.rm = TRUE)
-    max_value <- max(res$threshold, na.rm = TRUE)
+    min_value <- min(data[, marker], na.rm = TRUE)
+    max_value <- max(data[, marker], na.rm = TRUE)
+
     breaks <- ceiling(min_value):floor(max_value)
 
     ggthresh <- ggthresh +
       scale_x_continuous(
+        limits = c(min_value, max_value),
         breaks = breaks,
         labels = 10^breaks
       )
@@ -164,7 +166,7 @@ graphthresh <- function(res,
   # }
 
   if (!is.na(annotate)){
-    x_annotate_loc <- max(data[,marker]) * 0.8
+    x_annotate_loc <- max(data[,marker], na.rm = T) * 0.85
 
     ggthresh <- ggthresh  +
       annotate("text",
