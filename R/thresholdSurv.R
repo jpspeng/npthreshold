@@ -54,7 +54,10 @@ thresholdSurv <- function(data,
                           learner.failure_time = NULL,
                           learner.censoring_time = NULL,
                           placebo_risk = NULL,
-                          placebo_se = NULL
+                          placebo_se = NULL,
+                          modify_left_point = F,
+                          left_estimate = NA,
+                          left_se = NA
 ) {
 
   data <- data.table::as.data.table(data)
@@ -152,6 +155,14 @@ thresholdSurv <- function(data,
   n_events_in_bin <- sapply(threshold_list, function(thresh) {
     sum(data_select[data_select[[marker]] >= thresh , event_type, with = FALSE] == 1)
   })
+
+  if (modify_left_point){
+    res[1,"estimate"] <- left_estimate
+    res[1, "se"] <- left_se
+    res[1, "ci_lo"] <- left_estimate - (1.96 * left_se)
+    res[1, "ci_hi"] <- left_estimate + (1.96 * left_se)
+
+  }
 
   res$n_in_bin <- n_in_bin
   res$n_events_in_bin <- n_events_in_bin
