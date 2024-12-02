@@ -120,14 +120,27 @@ graphthresh <- function(res,
     min_value <- min(data[, marker], na.rm = TRUE)
     max_value <- max(data[, marker], na.rm = TRUE)
 
-    breaks <- ceiling(min_value):floor(max_value)
+    if (ceiling(min_value) == floor(max_value)){
+      breaks <- seq(ceiling(min_value * 10) / 10,
+                    floor(max_value * 10) / 10, by = 0.1)
 
-    ggthresh <- ggthresh +
-      scale_x_continuous(
-        limits = c(min_value, max_value),
-        breaks = breaks,
-        labels = 10^breaks
-      )
+      ggthresh <- ggthresh +
+        scale_x_continuous(
+          limits = c(min_value, max_value),
+          breaks = breaks,
+          labels = parse(text = paste0("10^", breaks))
+        )
+    }
+    else{
+      breaks <- seq(ceiling(min_value), floor(max_value), by = 1)
+
+      ggthresh <- ggthresh +
+        scale_x_continuous(
+          limits = c(min_value, max_value),
+          breaks = breaks,
+          labels = 10^breaks
+        )
+    }
     }
 
   # if (exp10){
