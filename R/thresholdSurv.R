@@ -164,6 +164,15 @@ thresholdSurv <- function(data,
 
   }
 
+  RCDF <- function(a) {
+    sum(data[[weights]] * (data[[marker]] >= a)) /
+      sum(data[[weights]])
+  }
+
+  RCDF <- Vectorize(RCDF)
+
+  res$rcdf <- RCDF(res$threshold)
+
   res$n_in_bin <- n_in_bin
   res$n_events_in_bin <- n_events_in_bin
 
@@ -183,7 +192,7 @@ thresholdSurv <- function(data,
   res$ci_lo_monotone <- res$estimate_monotone - (1.96 * res$se)
   res$ci_hi_monotone <- res$estimate_monotone + (1.96 * res$se)
 
-  res <- res[,c("threshold", "n_in_bin", "n_events_in_bin", "estimate", "se",
+  res <- res[,c("threshold", "rcdf", "n_in_bin", "n_events_in_bin", "estimate", "se",
                 "ci_lo", "ci_hi", "estimate_monotone", "ci_lo_monotone", "ci_hi_monotone")]
 
   if (!is.null(placebo_risk) & !is.null(placebo_se)){

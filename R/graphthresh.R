@@ -25,7 +25,7 @@ graphthresh <- function(res,
                         type = "raw",
                         ylabel = "Estimate",
                         xlabel = "Thresholds",
-                        # cutoffs = NA,
+                        cutoffs = NULL,
                         exp10 = F,
                         # lod_limit = NA,
                         # lod_label = "LLOQ/2",
@@ -64,9 +64,10 @@ graphthresh <- function(res,
     yright <- max(res[[y_var]])
   }
 
-  # if (!is.na(cutoffs)){
-  #   implement cutoffs
-  # }
+  if (!is.null(cutoffs)){
+    res[,ci_lo_var] <- pmax(res[, ci_lo_var], cutoffs[1])
+    res[,ci_hi_var] <- pmin(res[, ci_hi_var], cutoffs[2])
+  }
 
   ggthresh <- ggplot2::ggplot(res, ggplot2::aes(x = threshold, y = !!rlang::sym(y_var))) +
     geom_point(size = 0.2) +
