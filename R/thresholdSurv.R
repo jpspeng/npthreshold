@@ -99,6 +99,9 @@ thresholdSurv <- function(data,
 
   out_list <- list()
 
+  covariates_matrix <- model.matrix(~ . - 1, data = data_select[, covariates, with = FALSE])
+
+
   for(threshold in threshold_list ) {
     if (verbose) print(paste0("THRESHOLD: ", threshold))
 
@@ -112,7 +115,7 @@ thresholdSurv <- function(data,
       survout <- survtmle3_discrete(data_select[[failure_time]],
                                     data_select[[event_type]],
                                     data_select[["trt_temp"]],
-                                    data_select[, covariates, with = FALSE],
+                                    covariates_matrix,
                                     weights = data_select[[weights]],
                                     learner.treatment =  learner.treatment,
                                     learner.failure_time =  learner.failure_time,
