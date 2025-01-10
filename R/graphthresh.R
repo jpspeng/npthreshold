@@ -20,6 +20,7 @@
 #' @param tf Reference timepoint for the analysis
 #' @return A \code{ggplot2} object displaying the estimates and confidence
 #' intervals for \eqn{E[E[Y|A \ge v, W]]} across the specified thresholds.
+#' @import ggplot2
 #' @export
 graphthresh <- function(res,
                         type = "raw",
@@ -69,7 +70,7 @@ graphthresh <- function(res,
     res[,ci_hi_var] <- pmin(res[, ci_hi_var], cutoffs[2])
   }
 
-  ggthresh <- ggplot2::ggplot(res, ggplot2::aes(x = threshold, y = !!rlang::sym(y_var))) +
+  ggthresh <- ggplot(res, aes(x = threshold, y = !!rlang::sym(y_var))) +
     geom_point(size = 0.2) +
     geom_line() +
     geom_ribbon(aes(ymin = !!rlang::sym(ci_lo_var), ymax = !!rlang::sym(ci_hi_var)), alpha = 0.3, color = NA) +
