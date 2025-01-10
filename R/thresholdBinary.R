@@ -70,12 +70,14 @@ thresholdBinary <- function(data,
 
   results <- data.frame()
 
-  n <- nrow(data_select)
+  n <- nrow(data)
 
   for (threshold in threshold_list) {
 
+    covariates_matrix <- model.matrix(~ . - 1, data = data[, covariates])
+
     res_temp <- tmleThreshold.auto(threshold = threshold,
-                                   W = data[, covariates],
+                                   W = covariates_matrix,
                                    A = data[, marker],
                                    Y = data[, outcome],
                                    Delta = data[, Delta],
