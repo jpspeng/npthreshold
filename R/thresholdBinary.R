@@ -135,23 +135,23 @@ tmleThreshold.auto <- function(threshold, W, A, Y, Delta = rep(1, length(A)),
   Av <- as.numeric(A >= threshold)
 
   # Task setup for SuperLearner with cvControl
-  lrnr_Qv <- SuperLearner(Y = Y[Delta == 1 & Av == 1], X = as.data.frame(W[Delta == 1 & Av == 1, ]),
+  lrnr_Qv <- SuperLearner::SuperLearner(Y = Y[Delta == 1 & Av == 1], X = as.data.frame(W[Delta == 1 & Av == 1, ]),
                           newX = as.data.frame(W), family = binomial(), SL.library = sl_library,
                           method = method, cvControl = cvControl)
 
   if (all(Av == 1)) {
-    lrnr_gv <- SuperLearner(Y = Av, X = as.data.frame(W), family = binomial(), SL.library = "SL.mean",
+    lrnr_gv <- SuperLearner::SuperLearner(Y = Av, X = as.data.frame(W), family = binomial(), SL.library = "SL.mean",
                             method = method, cvControl = cvControl[1])
   } else {
-    lrnr_gv <- SuperLearner(Y = Av, X = as.data.frame(W), family = binomial(), SL.library = sl_library,
+    lrnr_gv <- SuperLearner::SuperLearner(Y = Av, X = as.data.frame(W), family = binomial(), SL.library = sl_library,
                             method = method, cvControl = cvControl[1])
   }
 
   if (all(Delta == 1)) {
-    lrnr_Gv <- SuperLearner(Y = Delta, X = as.data.frame(cbind(W, Av)), family = binomial(), SL.library = "SL.mean",
+    lrnr_Gv <- SuperLearner::SuperLearner(Y = Delta, X = as.data.frame(cbind(W, Av)), family = binomial(), SL.library = "SL.mean",
                             method = method, cvControl = cvControl[1])
   } else {
-    lrnr_Gv <- SuperLearner(Y = Delta, X = as.data.frame(cbind(W, Av)), family = binomial(), SL.library = sl_library,
+    lrnr_Gv <- SuperLearner::SuperLearner(Y = Delta, X = as.data.frame(cbind(W, Av)), family = binomial(), SL.library = sl_library,
                             method = method, cvControl = cvControl[1])
   }
 
