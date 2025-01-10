@@ -4,16 +4,58 @@
 \alias{graphthresh}
 \title{Plot threshold-response estimates}
 \usage{
-graphthresh(res, monotone = F)
+graphthresh(
+  res,
+  type = "raw",
+  ylabel = "Estimate",
+  xlabel = "Thresholds",
+  cutoffs = NULL,
+  exp10 = F,
+  plot_density = F,
+  plot_endpoints = F,
+  data = NA,
+  weights = NA,
+  marker = NA,
+  annotate = NA,
+  event = NA,
+  time_var = NA,
+  tf = NA
+)
 }
 \arguments{
-\item{res}{A \code{data.frame} obtained from the \code{thresholdSurv()} function, containing the estimates and related statistics.}
+\item{res}{A \code{data.frame} obtained from the \code{thresholdSurv()}}
 
-\item{monotone}{A \code{logical} value. Set to \code{TRUE} to display results under the monotonicity assumption.}
+\item{type}{Either "raw", "monotone", or "ve"}
+
+\item{ylabel}{Label for x-axis of graph}
+
+\item{xlabel}{Label for y-axis of graph}
+
+\item{plot_density}{T to include cumulative density function on graph}
+
+\item{plot_endpoints}{T to include points for disease endpoints on graph}
+
+\item{data}{Original dataset (needed to graph cdf)}
+
+\item{weights}{String for weight variable (needed to graph cdf)}
+
+\item{marker}{String for marker variable (needed to graph cdf)}
+
+\item{annotate}{String for text to annotate in the corner of the graph}
+
+\item{event}{String for event variable (needed to graph individual disease
+endpoints)}
+
+\item{time_var}{String for time to event variable (needed to graph individual
+disease endpoints)}
+
+\item{tf}{Reference timepoint for the analysis}
 }
 \value{
-A \code{ggplot2} object displaying the estimates and confidence intervals for \eqn{E[E[Y|A \ge v, W]]} across the specified thresholds.
+A \code{ggplot2} object displaying the estimates and confidence
+intervals for \eqn{E[E[Y|A \ge v, W]]} across the specified thresholds.
 }
 \description{
-This function creates a plot of estimates and confidence intervals for \eqn{E[E[Y|A \ge v, W]]} across various thresholds.
+This function creates a plot of estimates and confidence intervals for
+\eqn{E[E[Y|A \ge v, W]]} across various thresholds.
 }

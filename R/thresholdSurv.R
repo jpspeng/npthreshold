@@ -1,8 +1,10 @@
 #' Non-parametric estimation of the covariate-adjusted threshold-response function
+#' adjusting for right-censoring
 #'
 #' This method estimates \eqn{E[E[Y|A \ge v, W]]} for a range of thresholds \eqn{v}, where \eqn{Y}
-#' is a binary outcome of interest, \eqn{A} is a continuous biomarker of interest, and
-#' \eqn{W} are baseline variables. To account for missingness in the marker \eqn{A}, the user can
+#' is a binary outcome of interest that is subject to right-censoring, \eqn{A} is a
+#' continuous biomarker of interest, and \eqn{W} are baseline variables. To
+#' account for missingness in the marker \eqn{A}, the user can
 #' provide inverse probability observation weights in the function call.
 #'
 #' @param data A \code{data.frame} containing the dataset to be analyzed.

@@ -2,7 +2,8 @@
 % Please edit documentation in R/thresholdSurv.R
 \name{thresholdSurv}
 \alias{thresholdSurv}
-\title{Non-parametric estimation of the covariate-adjusted threshold-response function}
+\title{Non-parametric estimation of the covariate-adjusted threshold-response function
+adjusting for right-censoring}
 \usage{
 thresholdSurv(
   data,
@@ -14,12 +15,16 @@ thresholdSurv(
   weights = NULL,
   threshold_list = NULL,
   nbins_time = 20,
-  nbins_threshold = 20,
   verbose = FALSE,
   learner.treatment = NULL,
   learner.event_type = NULL,
   learner.failure_time = NULL,
-  learner.censoring_time = NULL
+  learner.censoring_time = NULL,
+  placebo_risk = NULL,
+  placebo_se = NULL,
+  modify_left_point = F,
+  left_estimate = NA,
+  left_se = NA
 )
 }
 \arguments{
@@ -41,23 +46,21 @@ thresholdSurv(
 
 \item{nbins_time}{A \code{numeric} value specifying the number of time bins to be used.}
 
-\item{nbins_threshold}{(NOT USED HERE - WHAT IS THIS FOR?)
-This learner is used as \code{binomial_learner} for \code{\link[sl3]{Lrnr_pooled_hazards}}.
-Default uses auto ensemble learning by calling `causalutils::get_autoML()`.}
-
 \item{verbose}{A logical value indicating whether to display progress and diagnostic messages during the computation. Default is FALSE.}
 
-\item{learner.treatment}{A \code{binomial} \code{\link[sl3]{Lrnr_base}} learner object used for fitting the propensity score model for the treatment mechanism.
-For nonbinary categorical treatment, this is used as \code{binomial_learner} in \code{\link[sl3]{Lrnr_independent_binomial}}.
-Default uses auto ensemble learning by calling `causalutils::get_autoML()`.}
+\item{learner.treatment}{A \code{binomial} \code{\link[sl3]{Lrnr_base}} learner object used for fitting the propensity score model for the treatment mechanism.}
 
-\item{learner.event_type}{A \code{binomial} \code{\link[sl3][Lrnr_base]} learner object used for fitting the conditional probability distribution for failure time of the failure event type.
-For nonbinary categorical event type, this is used as \code{binomial_learner} in \code{\link[sl3]{Lrnr_independent_binomial}}.
-Default uses auto ensemble learning by calling `causalutils::get_autoML()`.}
+\item{learner.event_type}{A \code{binomial} \code{\link[sl3][Lrnr_base]} learner object used for fitting the conditional probability distribution for failure time of the failure event type.}
 
-\item{learner.censoring_time}{A \code{binomial} \code{\link[sl3]{Lrnr_base}} learner object used for fitting conditional hazard model for censoring.
-This learner is used as \code{binomial_learner} for \code{\link[sl3]{Lrnr_pooled_hazards}}.
-Default uses auto ensemble learning by calling `causalutils::get_autoML()`.}
+\item{learner.failure_time}{\code{binomial} \code{\link[sl3]{Lrnr_base}} learner object used for fitting the conditional hazard model for failure.}
+
+\item{learner.censoring_time}{A \code{binomial} \code{\link[sl3]{Lrnr_base}} learner object used for fitting conditional hazard model for censoring.}
+
+\item{placebo_risk}{Placebo risk (to calculate VE columns). If NULL (default), will not
+include VE results.}
+
+\item{placebo_se}{Placebo risk standard error (to calculate VE standard errors)
+If NULL (default), will not include VE results.}
 }
 \value{
 A data.frame containing the following columns for each threshold in `threshold_list`:
@@ -73,7 +76,8 @@ A data.frame containing the following columns for each threshold in `threshold_l
 }
 \description{
 This method estimates \eqn{E[E[Y|A \ge v, W]]} for a range of thresholds \eqn{v}, where \eqn{Y}
-is a binary outcome of interest, \eqn{A} is a continuous biomarker of interest, and
-\eqn{W} are baseline variables. To account for missingness in the marker \eqn{A}, the user can
+is a binary outcome of interest that is subject to right-censoring, \eqn{A} is a
+continuous biomarker of interest, and \eqn{W} are baseline variables. To
+account for missingness in the marker \eqn{A}, the user can
 provide inverse probability observation weights in the function call.
 }

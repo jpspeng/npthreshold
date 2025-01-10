@@ -8,8 +8,7 @@ delta_method_contrast(
   output,
   transform = function(est_treatment, est_control) {
      est_treatment - est_control
-
-    },
+ },
   transform_grad = function(est_treatment, est_control) {
      c(1, -1)
  },
