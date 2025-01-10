@@ -9,6 +9,8 @@ devtools::install_github("jpspeng/npthreshold")
 ```
 ## Using the package 
 
+### With time-to-event outcomes (account for right-censoring)  
+
 ```{r}
 library(npthreshold)
 library(sl3)
@@ -31,3 +33,23 @@ res <- thresholdSurv(data = thresh_sample,
 # creates of graph of this estimated function with confidence intervals
 graphthresh(res)
 ```
+### With binary outcomes 
+
+```{r}
+library(npthreshold)
+library(SuperLearner)
+
+# estimates the threshold-response function across specified thresholds
+res <- thresholdBinary(data = thresh_sample,
+                       covariates = c("W1", "W2"), 
+                       outcome = "event", 
+                       marker = "A", 
+                       threshold_list = c(40, 50, 60, 70, 80),
+                       Delta = NULL, # no missing outcomes
+                       weights = NULL, # all equally weighted
+                       sl_library = c("SL.mean", "SL.glm"))
+
+# creates of graph of this estimated function with confidence intervals
+graphthresh(res)
+```
+
