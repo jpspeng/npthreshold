@@ -14,5 +14,5 @@ Imports:
     sl3,
     data.table,
     R6,
-    ggplot2
+    ggplot2,
     SuperLearner
