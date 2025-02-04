@@ -43,32 +43,36 @@ graphthresh <- function(res,
 
   res <- data.frame(res)
 
-  if (!is.null(cutoffs)){
-    res[,ci_lo_var] <- pmax(res[, ci_lo_var], cutoffs[1])
-    res[,ci_hi_var] <- pmin(res[, ci_hi_var], cutoffs[2])
-  }
-
   if (type == "monotone"){
     y_var <- "estimate_monotone"
     ci_lo_var <- "ci_lo_monotone"
     ci_hi_var <- "ci_hi_monotone"
-    scale_coef <- max(res[[ci_hi_var]], na.rm = T)
-    yright <- min(res[[y_var]])
   }
   else if (type == "raw"){
     y_var <- "estimate"
     ci_lo_var <- "ci_lo"
     ci_hi_var <- "ci_hi"
-    scale_coef <- max(res[[ci_hi_var]], na.rm = T)
-    yright <- min(res[[y_var]])
   }
   else if (type == "ve"){
     y_var <- "ve_monotone"
     ci_lo_var <- "ve_monotone_ci_lo"
     ci_hi_var <- "ve_monotone_ci_hi"
+  }
+
+  if (!is.null(cutoffs)){
+    res[,ci_lo_var] <- pmax(res[, ci_lo_var], cutoffs[1])
+    res[,ci_hi_var] <- pmin(res[, ci_hi_var], cutoffs[2])
+  }
+
+  if (type == "ve"){
     scale_coef <- 1
     yright <- max(res[[y_var]])
   }
+  else{
+    scale_coef <- max(res[[ci_hi_var]], na.rm = T)
+    yright <- min(res[[y_var]])
+  }
+
 
   ggthresh <- ggplot(res, aes(x = threshold, y = !!rlang::sym(y_var))) +
     geom_point(size = 0.2) +
