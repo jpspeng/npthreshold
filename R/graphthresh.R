@@ -43,6 +43,11 @@ graphthresh <- function(res,
 
   res <- data.frame(res)
 
+  if (!is.null(cutoffs)){
+    res[,ci_lo_var] <- pmax(res[, ci_lo_var], cutoffs[1])
+    res[,ci_hi_var] <- pmin(res[, ci_hi_var], cutoffs[2])
+  }
+
   if (type == "monotone"){
     y_var <- "estimate_monotone"
     ci_lo_var <- "ci_lo_monotone"
@@ -63,11 +68,6 @@ graphthresh <- function(res,
     ci_hi_var <- "ve_monotone_ci_hi"
     scale_coef <- 1
     yright <- max(res[[y_var]])
-  }
-
-  if (!is.null(cutoffs)){
-    res[,ci_lo_var] <- pmax(res[, ci_lo_var], cutoffs[1])
-    res[,ci_hi_var] <- pmin(res[, ci_hi_var], cutoffs[2])
   }
 
   ggthresh <- ggplot(res, aes(x = threshold, y = !!rlang::sym(y_var))) +
