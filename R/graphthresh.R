@@ -39,7 +39,8 @@ graphthresh <- function(res,
                         annotate = NA,
                         event = NA,
                         time_var = NA,
-                        tf = NA){
+                        tf = NA,
+                        ylim = NULL){
 
   res <- data.frame(res)
 
@@ -69,7 +70,12 @@ graphthresh <- function(res,
     yright <- max(res[[y_var]])
   }
   else{
-    scale_coef <- max(res[[ci_hi_var]], na.rm = T)
+    if (is.null(ylim)){
+      scale_coef <- max(res[[ci_hi_var]], na.rm = T)
+    }
+    else{
+      scale_coef <- ylim[2]
+    }
     yright <- min(res[[y_var]])
   }
 
@@ -148,7 +154,11 @@ graphthresh <- function(res,
           labels = 10^breaks
         )
     }
-    }
+  }
+
+  if (!is.null(ylim)){
+    ggthresh <- ggthresh + ylim(ylim)
+  }
 
   # if (exp10){
   #   min_value <- min(data[, marker], na.rm = TRUE)
