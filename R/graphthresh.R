@@ -91,6 +91,10 @@ graphthresh <- function(res,
     ylab(ylabel)  +
     theme(plot.title = element_text(hjust = 0.5))
 
+  if (!is.null(ylim)){
+    ggthresh <- ggthresh + ylim(ylim)
+  }
+
   if (plot_density){
 
     RCDF <- function(a) {
@@ -154,10 +158,6 @@ graphthresh <- function(res,
           labels = 10^breaks
         )
     }
-  }
-
-  if (!is.null(ylim)){
-    ggthresh <- ggthresh + ylim(ylim)
   }
 
   # if (exp10){
