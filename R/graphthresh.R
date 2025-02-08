@@ -86,13 +86,15 @@ graphthresh <- function(res,
     geom_ribbon(aes(ymin = !!rlang::sym(ci_lo_var), ymax = !!rlang::sym(ci_hi_var)), alpha = 0.3, color = NA) +
     labs(x = "Thresholds", y = "Estimates (CI)") +
     theme_minimal() +
-    scale_y_continuous(n.breaks = 10) +
     xlab(xlabel) +
     ylab(ylabel)  +
     theme(plot.title = element_text(hjust = 0.5))
 
   if (!is.null(ylim)){
-    ggthresh <- ggthresh + ylim(ylim)
+    ggthresh <- ggthresh + scale_y_continuous(n.breaks = 10, limits = ylim)
+  }
+  else{
+    ggthresh <- ggthresh + scale_y_continuous(n.breaks = 10)
   }
 
   if (plot_density){
