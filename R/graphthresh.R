@@ -137,7 +137,7 @@ graphthresh <- function(res,
 
   if (exp10){
 
-    if (!is.null(xlim)){
+    if (is.null(xlim)){
       min_value <- min(data[, marker], na.rm = TRUE)
       max_value <- max(data[, marker], na.rm = TRUE)
     }
