@@ -40,7 +40,8 @@ graphthresh <- function(res,
                         event = NA,
                         time_var = NA,
                         tf = NA,
-                        ylim = NULL){
+                        ylim = NULL,
+                        xlim = NULL){
 
   res <- data.frame(res)
 
@@ -135,8 +136,15 @@ graphthresh <- function(res,
   }
 
   if (exp10){
-    min_value <- min(data[, marker], na.rm = TRUE)
-    max_value <- max(data[, marker], na.rm = TRUE)
+
+    if (!is.null(xlim)){
+      min_value <- min(data[, marker], na.rm = TRUE)
+      max_value <- max(data[, marker], na.rm = TRUE)
+    }
+    else{
+      min_value <- xlim[1]
+      max_value <- xlim[2]
+    }
 
     if (ceiling(min_value) == floor(max_value) |
         max_value - min_value < 1){
