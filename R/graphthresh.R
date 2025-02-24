@@ -66,8 +66,18 @@ graphthresh <- function(res,
     res[,ci_hi_var] <- pmin(res[, ci_hi_var], cutoffs[2])
   }
 
+  shift_coef <- 0
+
   if (type == "ve"){
-    scale_coef <- 1
+
+    if (is.null(ylim)){
+      scale_coef <- 1
+    }
+    else{
+      scale_coef <- ylim[2] - ylim[1]
+      shift_coef <- ylim[1]
+    }
+
     yright <- max(res[[y_var]])
   }
   else{
@@ -79,7 +89,6 @@ graphthresh <- function(res,
     }
     yright <- min(res[[y_var]])
   }
-
 
   ggthresh <- ggplot(res, aes(x = threshold, y = !!rlang::sym(y_var))) +
     geom_point(size = 0.2) +
@@ -101,8 +110,8 @@ graphthresh <- function(res,
   if (plot_density){
 
     RCDF <- function(a) {
-      sum(data[[weights]] * (data[[marker]] >= a)) /
-        sum(data[[weights]]) * scale_coef
+      (sum(data[[weights]] * (data[[marker]] >= a)) /
+        sum(data[[weights]]) * scale_coef) + shift_coef
     }
 
     RCDF <- Vectorize(RCDF)
@@ -110,14 +119,29 @@ graphthresh <- function(res,
     col <- c(col2rgb("olivedrab3")) # orange, darkgoldenrod2
     col <- rgb(col[1], col[2], col[3], alpha = 255, maxColorValue = 255)
 
-    ggthresh <- ggthresh +
-      stat_function(fun = RCDF, color = col, geom = "line") +
-      scale_y_continuous(
-        sec.axis = sec_axis(~ . / scale_coef,
-                            name = "Reverse CDF"), n.breaks = 10)  +
-      theme(plot.title = element_text(hjust = 0.5),
-            axis.text.x = element_text(angle = 0, hjust = 1),
-            axis.text.y = element_text(angle = 0, hjust = 1))
+    if (is.null(ylim)){
+      ggthresh <- ggthresh +
+        stat_function(fun = RCDF, color = col, geom = "line") +
+        scale_y_continuous(
+          sec.axis = sec_axis(~ (. - shift_coef) / scale_coef,
+                              name = "Reverse CDF",
+                              breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)))  +
+        theme(plot.title = element_text(hjust = 0.5),
+              axis.text.x = element_text(angle = 0, hjust = 1),
+              axis.text.y = element_text(angle = 0, hjust = 1))
+    }
+    else{
+      ggthresh <- ggthresh +
+        stat_function(fun = RCDF, color = col, geom = "line") +
+        scale_y_continuous(
+          breaks = seq(ylim[1], ylim[2], by = ylim[3]),
+          sec.axis = sec_axis(~ (. - shift_coef) / scale_coef,
+                              name = "Reverse CDF",
+                              breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)))  +
+        theme(plot.title = element_text(hjust = 0.5),
+              axis.text.x = element_text(angle = 0, hjust = 1),
+              axis.text.y = element_text(angle = 0, hjust = 1))
+    }
   }
 
   if (plot_endpoints){
