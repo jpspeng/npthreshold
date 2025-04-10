@@ -71,7 +71,7 @@ graphthresh <- function(res,
   if (type == "ve"){
 
     if (is.null(ylim)){
-      scale_coef <- 1
+      scale_coef <- max(res[[ci_hi_var]], na.rm = T)
     }
     else{
       scale_coef <- ylim[2] - ylim[1]
