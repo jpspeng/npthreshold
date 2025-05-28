@@ -134,7 +134,7 @@ graphthresh <- function(res,
       ggthresh <- ggthresh +
         stat_function(fun = RCDF, color = col, geom = "line") +
         scale_y_continuous(
-          breaks = seq(ylim[1], ylim[2], by = ylim[3]),
+          breaks = round(seq(ylim[1], ylim[2], by = ylim[3]), 1),
           sec.axis = sec_axis(~ (. - shift_coef) / scale_coef,
                               name = "Reverse CDF",
                               breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)))  +
