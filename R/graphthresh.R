@@ -40,8 +40,8 @@ graphthresh <- function(res,
                         event = NA,
                         time_var = NA,
                         tf = NA,
-                        ylim = NULL,
-                        xlim = NULL){
+                        ylimit = NULL,
+                        xlimit = NULL){
 
   res <- data.frame(res)
 
@@ -70,22 +70,22 @@ graphthresh <- function(res,
 
   if (type == "ve"){
 
-    if (is.null(ylim)){
+    if (is.null(ylimit)){
       scale_coef <- max(res[[ci_hi_var]], na.rm = T)
     }
     else{
-      scale_coef <- ylim[2] - ylim[1]
-      shift_coef <- ylim[1]
+      scale_coef <- ylimit[2] - ylimit[1]
+      shift_coef <- ylimit[1]
     }
 
     yright <- max(res[[y_var]])
   }
   else{
-    if (is.null(ylim)){
+    if (is.null(ylimit)){
       scale_coef <- max(res[[ci_hi_var]], na.rm = T)
     }
     else{
-      scale_coef <- ylim[2]
+      scale_coef <- ylimit[2]
     }
     yright <- min(res[[y_var]])
   }
@@ -100,8 +100,16 @@ graphthresh <- function(res,
     ylab(ylabel)  +
     theme(plot.title = element_text(hjust = 0.5))
 
-  if (!is.null(ylim)){
-    ggthresh <- ggthresh + scale_y_continuous(n.breaks = 10, limits = ylim)
+  if (!is.null(xlimit)){
+    ggthresh <- ggthresh +
+      scale_x_continuous(
+        limits = c(xlimit[1], xlimit[2]),
+        breaks = seq(xlimit[1], xlimit[2], xlimit[3])
+      )
+  }
+
+  if (!is.null(ylimit)){
+    ggthresh <- ggthresh + scale_y_continuous(n.breaks = 10, limits = ylimit)
   }
   else{
     ggthresh <- ggthresh + scale_y_continuous(n.breaks = 10)
@@ -119,7 +127,7 @@ graphthresh <- function(res,
     col <- c(col2rgb("olivedrab3")) # orange, darkgoldenrod2
     col <- rgb(col[1], col[2], col[3], alpha = 255, maxColorValue = 255)
 
-    if (is.null(ylim)){
+    if (is.null(ylimit)){
       ggthresh <- ggthresh +
         stat_function(fun = RCDF, color = col, geom = "line") +
         scale_y_continuous(
@@ -134,7 +142,7 @@ graphthresh <- function(res,
       ggthresh <- ggthresh +
         stat_function(fun = RCDF, color = col, geom = "line") +
         scale_y_continuous(
-          breaks = round(seq(ylim[1], ylim[2], by = ylim[3]), 1),
+          breaks = seq(ylimit[1], ylimit[2], by = ylimit[3]),
           sec.axis = sec_axis(~ (. - shift_coef) / scale_coef,
                               name = "Reverse CDF",
                               breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)))  +
@@ -161,26 +169,18 @@ graphthresh <- function(res,
 
   if (exp10){
 
-    if (is.null(xlim)){
-      min_value <- min(data[, marker], na.rm = TRUE)
-      max_value <- max(data[, marker], na.rm = TRUE)
-    }
-    else{
-      min_value <- xlim[1]
-      max_value <- xlim[2]
-    }
-
     if (ceiling(min_value) == floor(max_value) |
         max_value - min_value < 1){
-      breaks <- seq(ceiling(min_value * 10) / 10,
-                    floor(max_value * 10) / 10, by = 0.1)
 
-      ggthresh <- ggthresh +
-        scale_x_continuous(
-          limits = c(min_value, max_value),
-          breaks = breaks,
-          labels = parse(text = paste0("10^", breaks))
-        )
+        breaks <- seq(ceiling(min_value * 10) / 10,
+                      floor(max_value * 10) / 10, by = 0.1)
+
+        ggthresh <- ggthresh +
+          scale_x_continuous(
+            limits = c(min_value, max_value),
+            breaks = breaks,
+            labels = parse(text = paste0("10^", breaks))
+          )
     }
     else{
       breaks <- seq(ceiling(min_value), floor(max_value))
