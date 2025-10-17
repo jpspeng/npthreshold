@@ -41,7 +41,8 @@ graphthresh <- function(res,
                         time_var = NA,
                         tf = NA,
                         ylimit = NULL,
-                        xlimit = NULL){
+                        xlimit = NULL,
+                        yright_endpoint = "min"){
 
   res <- data.frame(res)
 
@@ -78,7 +79,6 @@ graphthresh <- function(res,
       shift_coef <- ylimit[1]
     }
 
-    yright <- max(res[[y_var]])
   }
   else{
     if (is.null(ylimit)){
@@ -87,11 +87,17 @@ graphthresh <- function(res,
     else{
       scale_coef <- ylimit[2]
     }
+  }
+
+  if (yright_endpoint == "min"){
     yright <- min(res[[y_var]])
+  }
+  else{
+    yright <- max(res[[y_var]])
   }
 
   ggthresh <- ggplot(res, aes(x = threshold, y = !!rlang::sym(y_var))) +
-    geom_point(size = 0.2) +
+    geom_point(size = 0.7) +
     geom_line() +
     geom_ribbon(aes(ymin = !!rlang::sym(ci_lo_var), ymax = !!rlang::sym(ci_hi_var)), alpha = 0.3, color = NA) +
     labs(x = "Thresholds", y = "Estimates (CI)") +
@@ -167,6 +173,9 @@ graphthresh <- function(res,
 
   }
 
+  min_value <- min(data[, marker], na.rm = TRUE)
+  max_value <- max(data[, marker], na.rm = TRUE)
+
   if (exp10){
 
     if (ceiling(min_value) == floor(max_value) |
@@ -189,7 +198,7 @@ graphthresh <- function(res,
         scale_x_continuous(
           limits = c(min_value, max_value),
           breaks = breaks,
-          labels = 10^breaks
+          labels = parse(text = paste0("10^", breaks))
         )
     }
   }
