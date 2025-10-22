@@ -115,7 +115,8 @@ graphthresh <- function(res,
   }
 
   if (!is.null(ylimit)){
-    ggthresh <- ggthresh + scale_y_continuous(n.breaks = 10, limits = ylimit)
+    ggthresh <- ggthresh + scale_y_continuous(n.breaks = 10,
+                                              limits = c(ylimit[1], ylimit[2]))
   }
   else{
     ggthresh <- ggthresh + scale_y_continuous(n.breaks = 10)
